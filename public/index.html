@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MON</title>
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/4.12.1/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/4.12.1/firebase-auth.js"></script>
+    <!--<script defer src="/__/firebase/4.12.1/firebase-database.js"></script>-->
+    <script defer src="/__/firebase/4.12.1/firebase-firestore.js"></script>
+    <script defer src="/__/firebase/4.12.1/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/4.12.1/firebase-storage.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  </head>
+  <body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-5">
+        <h3>Jobs</h3>
+        <div id="jobs"></div>
+      </div>
+      <div class="col-sm-4">
+        <h3>URLs</h3>
+        <div id="www"></div>
+      </div>
+      <div class="col-sm">
+        <h3>Servers</h3>
+        <div id="servers"></div>
+      </div>
+    </div>
+  </div>
+    <script>
+      function show(type, id) {
+          let systems = app.tab.where("type", "==", type).get().then(function(docs) {
+            let divMain = document.getElementById(id);
+            docs.forEach(function(doc) {
+              $sys = doc.data();
+              let div = document.createElement('DIV');
+              $status = $sys.status=="OK"?"success":$sys.status.toLowerCase();
+              $status = $status=="error"?"danger":$status;
+              div.className = "alert alert-" + $status;
+              div.setAttribute("role", "alert");
+              div.innerHTML = "<h3>" + $sys.sys + " " + $sys.subsys + '</h3>' + $sys.status;
+              divMain.appendChild(div);
+            });
+          });
+      }
+      window.app = {};
+      document.addEventListener('DOMContentLoaded', function() {
+        try {
+          let fbase = firebase.app();
+          //firebase.auth().signInAnonymously().catch(function(error) {alert(error);})
+          firebase.auth().signInWithEmailAndPassword('hybris.user@buhlergroup.com', 'test123').catch(function(error) {alert(error);})
+          window.app.db = firebase.firestore(fbase);
+          window.app.tab = app.db.collection("monitoring-dev");
+          show('WWW', 'www');
+          show('JOB', 'jobs');
+          show('SERVER', 'servers');
+          //let doc1 = tab.doc("1");
+          //doc1.get().then(function(doc) {
+          //db.ref('monitoring-dev').once('value').then(function(doc) {
+          //});
+        } catch (e) {
+          console.error(e);
+          console.log('Error loading the Firebase SDK, check the console.');
+        }
+      });
+    </script>
+  </body>
+</html>
